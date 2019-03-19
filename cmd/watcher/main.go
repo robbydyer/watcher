@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"regexp"
 	"strings"
 	"time"
 	"unicode"
@@ -24,6 +25,7 @@ func main() {
 	stdinPipe := flag.Bool("pipe", false, "pipe event's info to command's stdin")
 	keepalive := flag.Bool("keepalive", false, "keep alive when a cmd returns code != 0")
 	ignore := flag.String("ignore", "", "comma separated list of paths to ignore")
+	ignoreReg := flag.String("ignoreRegex", "", "Regex for paths to ignore")
 
 	flag.Parse()
 
@@ -66,6 +68,11 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
+	}
+
+	if *ignoreReg != "" {
+		r := regexp.MustCompile(*ignoreReg)
+		w.AddFilterHook(watcher.RegexIgnoreHook(r, false))
 	}
 
 	done := make(chan struct{})

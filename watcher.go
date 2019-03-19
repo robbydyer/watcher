@@ -110,6 +110,23 @@ func RegexFilterHook(r *regexp.Regexp, useFullPath bool) FilterFileHookFunc {
 	}
 }
 
+func RegexIgnoreHook(r *regexp.Regexp, useFullPath bool) FilterFileHookFunc {
+	return func(info os.FileInfo, fullPath string) error {
+		str := info.Name()
+
+		if useFullPath {
+			str = fullPath
+		}
+
+		// Match
+		if r.MatchString(str) {
+			return ErrSkip
+		}
+
+		return nil
+	}
+}
+
 // Watcher describes a process that watches files for changes.
 type Watcher struct {
 	Event  chan Event
